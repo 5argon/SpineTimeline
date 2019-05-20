@@ -1,7 +1,8 @@
 {
     "name": "E7.SpineTimeline.Editor",
     "references": [
-        "E7.SpineTimeline"
+        "E7.SpineTimeline",
+        "spine-unity"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

@@ -1,0 +1,13 @@
+{
+    "name": "com.e7.spine-timeline",
+    "author": "Sirawat Pitaksarit / 5argon - Exceed7 Experiments",
+    "displayName": "Spine Timeline",
+    "version": "1.0.0",
+    "unity": "2019.1",
+    "keywords": [
+        "Spine",
+        "Timeline",
+        "Sequencing"
+    ],
+    "description": "Use Unity's Timeline to control Spine animation."
+}
