@@ -1,0 +1,1 @@
+Copy the icons to `Assets/Gizmos/`.
