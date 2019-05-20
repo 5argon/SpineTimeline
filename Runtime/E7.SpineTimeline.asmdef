@@ -1,0 +1,16 @@
+{
+    "name": "E7.SpineTimeline",
+    "references": [
+        "spine-unity",
+        "Unity.Timeline"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
