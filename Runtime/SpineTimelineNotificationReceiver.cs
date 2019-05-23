@@ -76,7 +76,7 @@ namespace E7.SpineTimeline
         {
             if (notification is SpineTimelineMarker stm)
             {
-                Debug.Log($"noti");
+                //Debug.Log($"noti {gameObject.name} {stm.action}");
                 switch (stm.action)
                 {
                     case SpineTimelineAction.SetAnimation:

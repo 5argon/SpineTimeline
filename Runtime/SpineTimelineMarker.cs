@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace E7.SpineTimeline
 {
-    public class SpineTimelineMarker : Marker, INotification
+    public class SpineTimelineMarker : Marker, INotification , INotificationOptionProvider
     {
         public SpineTimelineAction action;
         [Space]
@@ -17,5 +17,7 @@ namespace E7.SpineTimeline
         public float timeScale;
 
         public PropertyName id => (int)action;
+
+        public NotificationFlags flags => NotificationFlags.Retroactive;
     }
 }
