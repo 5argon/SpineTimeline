@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     public abstract class DrawThingsInTemplate : Editor
     {

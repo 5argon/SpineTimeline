@@ -2,7 +2,8 @@
     "name": "E7.SpineTimeline",
     "references": [
         "spine-unity",
-        "Unity.Timeline"
+        "Unity.Timeline",
+        "Unity.ugui"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

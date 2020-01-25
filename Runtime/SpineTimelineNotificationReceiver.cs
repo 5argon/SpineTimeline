@@ -5,7 +5,7 @@ using Spine.Unity;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     public class SpineTimelineNotificationReceiver : MonoBehaviour, INotificationReceiver
     {

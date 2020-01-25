@@ -7,14 +7,33 @@ using UnityEngine.Timeline;
 using Animation = Spine.Animation;
 using AnimationState = Spine.AnimationState;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
+    /// <summary>
+    /// Common mixer for all kinds of Spine-based track.
+    /// </summary>
+    [System.Serializable]
     public class SpineTimelineMixerBehaviour : PlayableBehaviour
     {
-        public int trackIndex;
-        public IEnumerable<IMarker> markers; //TODO : Use this to preview flip marker in edit mode + restore back.
+        // public enum PostPlaybackMode
+        // {
+        //     ApplyFinalSkeleton,
+        //     BackToPriorSkeleton
+        // }
 
-        private AnimationState animationState;
+#pragma warning disable 0649
+        [SerializeField] private int trackIndex;
+        //[SerializeField] private PostPlaybackMode postPlaybackMode;
+#pragma warning restore 0649
+
+        internal IEnumerable<IMarker> markers { set; private get; } //TODO : Use this to preview flip marker in edit mode + restore back.
+
+        /// <summary>
+        /// This animation state is separated from the one on your object. As long as the timeline is playing
+        /// the one on your object will be made ineffective while applying this one continuously.
+        /// </summary>
+        private AnimationState timelineAnimationState;
+
         private SkeletonAnimation affectedSkeletonAnimation;
         private SkeletonGraphic affectedSkeletonGraphic;
         private bool isSkeletonGraphic;
@@ -22,6 +41,7 @@ namespace E7.SpineTimeline
 
         public override void OnPlayableDestroy(Playable playable)
         {
+            //Unfreezing make skeleton stored in the object take effect again.
             if (isSkeletonGraphic)
             {
                 if (affectedSkeletonGraphic != null)
@@ -38,17 +58,38 @@ namespace E7.SpineTimeline
             }
 
             // Reverse SkeletonAnimation's `skeleton` non-serialized property which can't be registered by the driver.
-            if(Application.isPlaying == false && affectedSkeletonAnimation != null)
-			{
-				affectedSkeletonAnimation.Initialize(overwrite: true);
-			}
+            if (Application.isPlaying == false && affectedSkeletonAnimation != null)
+            {
+                affectedSkeletonAnimation.Initialize(overwrite: true);
+            }
+
+            // if (Application.isPlaying && postPlaybackMode == PostPlaybackMode.ApplyFinalSkeleton)
+            // {
+            //     //In the case that the object is not in playing state, it maybe desirable to copy timeline skeleton to be the real one
+            //     //after the timeline ends.
+            //     if (isSkeletonGraphic)
+            //     {
+            //         if (affectedSkeletonGraphic != null && timelineAnimationState != null)
+            //         {
+            //             affectedSkeletonGraphic.set
+            //         }
+            //     }
+            //     else
+            //     {
+            //         if (affectedSkeletonAnimation != null && timelineAnimationState != null)
+            //         {
+            //             affectedSkeletonAnimation.enabled = originalFreezeState;
+            //             timelineAnimationState.Apply(affectedSkeletonGraphic.Skeleton);
+            //         }
+            //     }
+            // }
         }
 
 
         /// <summary>
         /// Prepare a fragment of AnimationState that blends to produce the current timeline state.
         /// </summary>
-        private AnimationState InitializeAnimationState(Playable playable, object playerData)
+        private void UpdateTimelineAnimationState(Playable playable, object playerData)
         {
             bool firstTime = affectedSkeletonAnimation == null && affectedSkeletonGraphic == null;
 
@@ -60,7 +101,7 @@ namespace E7.SpineTimeline
 
                 //Make this once and keep clearing it instead.
                 //This implies we will not ever change skeleton data mid-timeline. (unlikely?)
-                animationState = new AnimationState(hasSkeletonDataAsset.SkeletonDataAsset.GetAnimationStateData());
+                timelineAnimationState = new AnimationState(hasSkeletonDataAsset.SkeletonDataAsset.GetAnimationStateData());
                 isSkeletonGraphic = skeletonGraphic != null;
                 if (!isSkeletonGraphic)
                 {
@@ -78,7 +119,7 @@ namespace E7.SpineTimeline
                 }
             }
 
-            animationState.SetEmptyAnimation(trackIndex, mixDuration: 0);
+            timelineAnimationState.SetEmptyAnimation(trackIndex, mixDuration: 0);
 
             // Find at most 2 blended clips that is affecting the playhead.
             // Spine could mix 3 clips but timeline's interface allows only 2 naturally.
@@ -110,7 +151,7 @@ namespace E7.SpineTimeline
 
                 if (!foundFirst)
                 {
-                    TrackEntry entry = animationState.SetAnimation(trackIndex, toAdd, clipData.loop);
+                    TrackEntry entry = timelineAnimationState.SetAnimation(trackIndex, toAdd, clipData.loop);
                     entry.TrackTime = (float)playheadFromClipBegin;
                     entry.AllowImmediateQueue();
                     foundFirst = true;
@@ -118,22 +159,20 @@ namespace E7.SpineTimeline
                 else if (!foundSecond)
                 {
                     //WIP? Apparently this produces a weird mix, I am not sure it is correct or not.
-                    TrackEntry entry = animationState.SetAnimation(trackIndex, toAdd, clipData.loop);
+                    TrackEntry entry = timelineAnimationState.SetAnimation(trackIndex, toAdd, clipData.loop);
                     entry.MixTime = (float)playheadFromClipBegin;
                     entry.MixDuration = 1f;
                     foundSecond = true;
                     break;
                 }
             }
-
-            return animationState;
         }
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             if(playerData == null) return;
             //Debug.Log($"Track time {playable.GetTime()}");
-            AnimationState animationState = InitializeAnimationState(playable, playerData);
+            UpdateTimelineAnimationState(playable, playerData);
 
             var skeletonAnimation = playerData as SkeletonAnimation;
             var skeletonGraphic = playerData as SkeletonGraphic;
@@ -147,8 +186,8 @@ namespace E7.SpineTimeline
 
             skel.SetToSetupPose();
             skel.Time = playTime;
-            animationState.Update(0);
-            animationState.Apply(skeletonComponent.Skeleton);
+            timelineAnimationState.Update(0);
+            timelineAnimationState.Apply(skeletonComponent.Skeleton);
             skel.UpdateWorldTransform();
 
             if (isSkeletonGraphic)

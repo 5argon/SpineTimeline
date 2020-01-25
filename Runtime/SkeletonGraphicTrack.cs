@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     [TrackBindingType(typeof(SkeletonGraphic))]
 	public class SkeletonGraphicTrack : SpineTrack {

@@ -1,4 +1,4 @@
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     public enum SpineTimelineAction
     {

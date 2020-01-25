@@ -3,7 +3,7 @@ using UnityEngine.Playables;
 using Spine.Unity;
 using UnityEngine;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     public class SpineTimelineMarker : Marker, INotification , INotificationOptionProvider
     {

@@ -3,7 +3,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace E7.SpineTimeline
+namespace E7.Timeline
 {
     [CustomEditor(typeof(SpineTimelineMarker))]
     public class SpineTimelineMarkerDrawer : Editor
