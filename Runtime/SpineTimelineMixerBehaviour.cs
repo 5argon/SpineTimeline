@@ -106,16 +106,19 @@ namespace E7.Timeline
                 if (!isSkeletonGraphic)
                 {
                     affectedSkeletonAnimation = skeletonAnimation;
-                    //Prevent regular update from interfering.
+                    // QUICK TEST(4.3): like SkeletonGraphic.freeze, disabling the component breaks its render.
+                    // Keep it enabled and let the mixer drive the pose.
                     originalFreezeState = skeletonAnimation.enabled;
-                    skeletonAnimation.enabled = false;
+                    // skeletonAnimation.enabled = false;
                 }
                 else
                 {
                     affectedSkeletonGraphic = skeletonGraphic;
-                    //Prevent regular update from interfering.
+                    // Spine 4.x: do NOT freeze the graphic to take control — freeze blocks the split render
+                    // path so the timeline pose never shows at runtime. And do NOT disable the sibling
+                    // SkeletonAnimation either — the graphic's mesh update depends on it. The mixer applies
+                    // its own pose every frame with the graphic simply kept unfrozen (see ProcessFrame).
                     originalFreezeState = skeletonGraphic.freeze;
-                    skeletonGraphic.freeze = true;
                 }
             }
 
@@ -180,24 +183,33 @@ namespace E7.Timeline
 
             float playTime = (float)playable.GetTime();
             var skel = skeletonComponent.Skeleton;
+            if (skel == null)
+            {
+                // Spine 4.x may not have built the Skeleton yet when the timeline evaluates the bound
+                // component (e.g. edit-mode preview before it initializes). Initialize on demand, then skip
+                // this frame if it still has no skeleton data.
+                skeletonGraphic?.Initialize(false);
+                skeletonAnimation?.Initialize(false);
+                skel = skeletonComponent.Skeleton;
+                if (skel == null) return;
+            }
 
-            //Unfreeze for update, then freeze back immediately.
+            // Keep the graphic unfrozen so the mixer's pose renders (Spine 4.x freeze would block it).
             if (isSkeletonGraphic) { skeletonGraphic.freeze = false; }
 
-            skel.SetToSetupPose();
+            skel.SetupPose();
             skel.Time = playTime;
             timelineAnimationState.Update(0);
             timelineAnimationState.Apply(skeletonComponent.Skeleton);
-            skel.UpdateWorldTransform();
+            skel.UpdateWorldTransform(Spine.Physics.Update);
 
             if (isSkeletonGraphic)
             {
                 skeletonGraphic.LateUpdate();
-                if (isSkeletonGraphic) { skeletonGraphic.freeze = true; }
             }
             else
             {
-                skeletonAnimation.LateUpdate();
+                skeletonAnimation.UpdateOncePerFrame(0);
             }
         }
 	}

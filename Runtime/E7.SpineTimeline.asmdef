@@ -2,6 +2,7 @@
     "name": "E7.SpineTimeline",
     "references": [
         "spine-unity",
+        "spine-csharp",
         "Unity.Timeline",
         "Unity.ugui"
     ],

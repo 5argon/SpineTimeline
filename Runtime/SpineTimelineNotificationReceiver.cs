@@ -44,9 +44,9 @@ namespace E7.Timeline
                 {
                     yield return SkeletonAnimation.AnimationState;
                 }
-                if (SkeletonGraphic != null)
+                if (SkeletonGraphic != null && SkeletonGraphic.Animation is IAnimationStateComponent graphicAnim)
                 {
-                    yield return SkeletonGraphic.AnimationState;
+                    yield return graphicAnim.AnimationState;
                 }
             }
         }
@@ -98,9 +98,9 @@ namespace E7.Timeline
                     {
                         SkeletonAnimation.timeScale = stm.timeScale;
                     }
-                    if (SkeletonGraphic != null)
+                    if (SkeletonGraphic != null && SkeletonGraphic.Animation is SkeletonAnimation graphicAnim)
                     {
-                        SkeletonGraphic.timeScale = stm.timeScale;
+                        graphicAnim.timeScale = stm.timeScale;
                     }
                 }
             }
